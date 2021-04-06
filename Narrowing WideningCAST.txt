@@ -1,0 +1,90 @@
+*-----------------------------
+*KADİR DEĞER
+*kadirdgr1997@gmail.com
+*Narrowing Cast ve Widening çalışma alanı.
+*------------------------------
+
+CLASS vehicle DEFINITION.
+  PUBLIC SECTION.
+  METHODS: gofaster.
+
+  PROTECTED SECTION.
+  DATA speed TYPE i.
+
+  ENDCLASS.
+
+  CLASS car DEFINITION INHERITING FROM vehicle.
+    PUBLIC SECTION.
+    METHODS: gofaster REDEFINITION,
+             writespeed.
+    ENDCLASS.
+
+
+CLASS  vehicle IMPLEMENTATION.
+  METHOD gofaster.
+    speed = speed + 1.
+    WRITE: / ' The VEHICLE Speed is: ', speed LEFT-JUSTIFIED.
+    ENDMETHOD.
+    ENDCLASS.
+
+    class car IMPLEMENTATION.
+      METHOD gofaster.
+        speed = speed + 10.
+        WRITE: / ' The Car Speed İs: ', speed LEFT-JUSTIFIED.
+        ENDMETHOD.
+
+        METHOD writespeed.
+          WRITE: / ' Very Fast '.
+          ENDMETHOD.
+          ENDCLASS.
+
+START-OF-SELECTION.
+
+data vehicle1 type REF TO vehicle.
+DATA car1     TYPE REF TO car.
+
+*NArrowing Cast olmadan Vehivle objesi
+WRITE: / ' Narrowing cast olmadan vehicle objesi '.
+create OBJECT vehicle1.
+vehicle1->gofaster( ).
+clear vehicle1.
+
+*Narrowing cast ile beraber vehicle objesi
+ULINE.
+write: / ' Vehicle - Narrowing cast Car '.
+create OBJECT car1.
+vehicle1 = car1.
+vehicle1->gofaster( ).
+
+
+DATA: my_cast_error type REF TO cx_sy_move_cast_error,
+      car2 type REF TO car.
+
+try.
+
+  car2 ?= vehicle1.
+  CATCH cx_sy_move_cast_error INTO my_cast_error.
+    WRITE: / ' Widening cast hatası '.
+
+  ENDTRY.
+
+  if car2 is not INITIAL.
+    car2->gofaster( ).
+    car2->writespeed( ).
+    endif.
+
+
+clear: car1, car2, vehicle1, my_cast_error.
+    create OBJECT vehicle1.
+    try.
+
+      car1 ?= vehicle1.
+      catch cx_sy_move_cast_error INTO my_cast_error.
+        write: / ' Widening cast hatası '.
+
+        ENDTRY.
+
+        if car1 is not INITIAL.
+          car1->gofaster( ).
+          car1->writespeed( ).
+          ENDIF.
